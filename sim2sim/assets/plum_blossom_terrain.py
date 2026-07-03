@@ -38,8 +38,8 @@ class TerrainCfg:
     pile_cols: int = 15
     pile_size_x: float = 0.20
     pile_size_y: float = 0.20
-    pile_spacing_x: float = 0.40
-    pile_spacing_y: float = 0.40
+    pile_spacing_x: float = 0.35
+    pile_spacing_y: float = 0.35
     pile_stagger: bool = True
 
 

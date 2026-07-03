@@ -17,7 +17,7 @@ ROBOT_SCENE = os.path.join(ASSETS_DIR, "scene_plum_blossom.xml")
 
 RAYCASTER_PLUGIN_LIBRARY = os.path.join(SIM2SIM_DIR, "libsensor_raycaster.so")
 
-POLICY_PATH = os.path.join(os.path.dirname(SIM2SIM_DIR), "pretrained", "ame1.pt")
+POLICY_PATH = os.path.join(os.path.dirname(SIM2SIM_DIR), "pretrained", "ame2.pt")
 DEPLOY_CONFIG = os.path.join(SIM2SIM_DIR, "deploy.yaml")
 
 SIM_DT = 0.002
