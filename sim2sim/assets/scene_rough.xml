@@ -1,0 +1,197 @@
+<mujoco model="g1_29dof rough terrain scene">
+  <include file="g1_29dof_raycaster.xml" />
+  <extension>
+    <plugin plugin="mujoco.sensor.ray_caster" />
+  </extension>
+  <statistic center="9.0 0.0 0.25" extent="20.0" />
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0" />
+    <rgba haze="0.15 0.25 0.35 1" />
+    <global azimuth="-130" elevation="-25" />
+  </visual>
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072" />
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300" />
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2" />
+    <material name="pyramid_stairs_mat" rgba="0.55 0.58 0.52 1" />
+    <material name="boxes_mat" rgba="0.62 0.48 0.34 1" />
+    <material name="slope_mat" rgba="0.46 0.46 0.58 1" />
+    <material name="random_rough_mat" rgba="0.36 0.52 0.46 1" />
+    <mesh name="slope_pyramid_mesh" vertex="-2.5 -2.5 0 2.5 -2.5 0 2.5 2.5 0 -2.5 2.5 0 -0.5 -0.5 0.5 0.5 -0.5 0.5 0.5 0.5 0.5 -0.5 0.5 0.5" face="0 2 1 0 3 2 4 5 6 4 6 7 0 1 5 0 5 4 1 2 6 1 6 5 2 3 7 2 7 6 3 0 4 3 4 7" />
+    <hfield name="random_rough_hfield" size="2.5 2.5 0.2 0.04" nrow="24" ncol="24" elevation="&#10;        0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00&#10;        0.00 0.13 0.31 0.72 0.21 0.53 0.58 0.35 0.49 0.10 0.10 0.23 0.61 0.42 0.32 0.54 0.43 0.32 0.73 0.65 0.28 0.52 0.46 0.00&#10;        0.00 0.31 0.89 0.19 0.43 0.69 0.21 0.46 0.10 0.59 0.68 0.55 0.79 0.34 0.65 0.58 0.56 0.47 0.80 0.89 0.52 0.63 0.11 0.00&#10;        0.00 0.90 0.78 0.32 0.38 0.60 0.10 0.43 0.21 0.15 0.13 0.70 0.20 0.30 0.43 0.82 0.17 0.47 0.56 0.84 0.80 0.82 0.30 0.00&#10;        0.00 0.80 0.88 0.20 0.20 0.23 0.24 0.45 0.53 0.25 0.04 0.38 0.36 0.52 0.87 0.66 0.52 0.58 0.63 0.15 0.83 0.75 0.78 0.00&#10;        0.00 0.38 0.17 0.57 0.09 0.11 0.23 0.20 0.34 0.10 0.06 0.17 0.14 0.37 0.13 0.83 0.62 0.22 0.28 0.35 0.38 0.22 0.77 0.00&#10;        0.00 0.43 0.15 0.17 0.37 0.31 0.75 0.21 0.09 0.83 0.48 0.16 0.47 0.07 0.51 0.91 0.83 0.67 0.31 0.40 0.23 0.71 0.49 0.00&#10;        0.00 0.23 0.75 0.91 0.81 0.78 0.78 0.69 0.27 0.51 0.39 0.11 0.09 0.29 0.30 0.68 0.91 0.50 0.88 0.91 0.88 0.40 0.26 0.00&#10;        0.00 0.23 0.62 0.87 0.82 0.53 0.67 0.76 0.17 0.61 0.82 0.71 0.69 0.47 0.25 0.74 0.41 0.79 0.92 0.45 0.43 0.86 0.64 0.00&#10;        0.00 0.18 0.84 0.77 0.24 0.78 0.93 0.65 0.40 0.54 0.22 0.13 0.88 0.62 0.51 0.83 0.46 0.81 0.78 0.27 0.30 0.33 0.26 0.00&#10;        0.00 0.39 0.21 0.82 0.38 0.47 0.60 0.85 0.46 0.85 0.51 0.53 0.51 0.12 0.45 0.24 0.11 0.74 0.26 0.48 0.69 0.55 0.33 0.00&#10;        0.00 0.70 0.19 0.52 0.28 0.30 0.71 0.50 0.56 0.73 0.87 0.47 0.59 0.50 0.50 0.64 0.47 0.53 0.51 0.87 0.70 0.83 0.85 0.00&#10;        0.00 0.84 0.78 0.18 0.16 0.42 0.13 0.27 0.14 0.64 0.74 0.82 0.23 0.67 0.63 0.23 0.85 0.89 0.30 0.85 0.44 0.51 0.89 0.00&#10;        0.00 0.44 0.53 0.35 0.22 0.33 0.67 0.08 0.51 0.43 0.11 0.35 0.60 0.51 0.17 0.90 0.77 0.89 0.20 0.29 0.13 0.72 0.29 0.00&#10;        0.00 0.80 0.75 0.28 0.18 0.81 0.54 0.63 0.13 0.12 0.62 0.42 0.14 0.84 0.61 0.73 0.17 0.77 0.15 0.76 0.45 0.36 0.52 0.00&#10;        0.00 0.18 0.52 0.28 0.17 0.21 0.15 0.25 0.33 0.33 0.71 0.33 0.48 0.22 0.35 0.07 0.27 0.08 0.68 0.52 0.24 0.49 0.84 0.00&#10;        0.00 0.39 0.48 0.75 0.39 0.47 0.64 0.89 0.40 0.78 0.68 0.62 0.41 0.33 0.08 0.14 0.11 0.66 0.29 0.19 0.14 0.76 0.77 0.00&#10;        0.00 0.23 0.31 0.45 0.22 0.45 0.34 0.91 0.93 0.56 0.32 0.88 0.35 0.36 0.06 0.36 0.46 0.49 0.27 0.48 0.09 0.30 0.14 0.00&#10;        0.00 0.07 0.33 0.28 0.57 0.53 0.73 0.66 0.70 0.80 0.40 0.35 0.89 0.21 0.67 0.61 0.14 0.77 0.82 0.60 0.69 0.74 0.17 0.00&#10;        0.00 0.73 0.73 0.76 0.56 0.83 0.67 0.67 0.30 0.13 0.19 0.37 0.18 0.79 0.57 0.62 0.61 0.64 0.48 0.11 0.75 0.72 0.47 0.00&#10;        0.00 0.13 0.70 0.32 0.16 0.32 0.69 0.27 0.68 0.87 0.47 0.40 0.49 0.67 0.74 0.61 0.64 0.17 0.19 0.28 0.69 0.36 0.53 0.00&#10;        0.00 0.29 0.63 0.67 0.62 0.34 0.51 0.48 0.48 0.21 0.81 0.25 0.88 0.86 0.12 0.46 0.75 0.86 0.44 0.29 0.26 0.86 0.25 0.00&#10;        0.00 0.47 0.83 0.19 0.73 0.49 0.78 0.64 0.25 0.79 0.45 0.08 0.06 0.46 0.42 0.29 0.18 0.34 0.32 0.72 0.07 0.67 0.73 0.00&#10;        0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00&#10;      " />
+  </asset>
+  <worldbody>
+    <light pos="0 0 2.5" dir="0 0 -1" directional="true" />
+    <geom name="floor" group="2" size="0 0 0.05" type="plane" material="groundplane" />
+    <!-- pyramid_stairs: centered at 0 0 0, width=5, length=5. -->
+    <geom name="pyramid_stairs_l0" group="2" pos="0 0 0.05" type="box" size="2.5 2.5 0.05" material="pyramid_stairs_mat" />
+    <geom name="pyramid_stairs_l1" group="2" pos="0 0 0.15" type="box" size="2.25 2.25 0.05" material="pyramid_stairs_mat" />
+    <geom name="pyramid_stairs_l2" group="2" pos="0 0 0.25" type="box" size="2 2 0.05" material="pyramid_stairs_mat" />
+    <geom name="pyramid_stairs_l3" group="2" pos="0 0 0.35" type="box" size="1.75 1.75 0.05" material="pyramid_stairs_mat" />
+    <geom name="pyramid_stairs_l4" group="2" pos="0 0 0.45" type="box" size="1.5 1.5 0.05" material="pyramid_stairs_mat" />
+    <geom name="pyramid_stairs_l5" group="2" pos="0 0 0.55" type="box" size="1.25 1.25 0.05" material="pyramid_stairs_mat" />
+    <geom name="pyramid_stairs_l6" group="2" pos="0 0 0.65" type="box" size="1 1 0.05" material="pyramid_stairs_mat" />
+    <geom name="pyramid_stairs_l7" group="2" pos="0 0 0.75" type="box" size="0.75 0.75 0.05" material="pyramid_stairs_mat" />
+    <!-- boxes: centered at 6 0 0, width=5, length=5. -->
+    <geom name="boxes_r0_c0" group="2" pos="3.70833 -2.29167 0.0684523" type="box" size="0.208833 0.208833 0.0684523" material="boxes_mat" />
+    <geom name="boxes_r0_c1" group="2" pos="4.125 -2.29167 0.0775807" type="box" size="0.208833 0.208833 0.0775807" material="boxes_mat" />
+    <geom name="boxes_r0_c2" group="2" pos="4.54167 -2.29167 0.108558" type="box" size="0.208833 0.208833 0.108558" material="boxes_mat" />
+    <geom name="boxes_r0_c3" group="2" pos="4.95833 -2.29167 0.0695803" type="box" size="0.208833 0.208833 0.0695803" material="boxes_mat" />
+    <geom name="boxes_r0_c4" group="2" pos="5.375 -2.29167 0.0731665" type="box" size="0.208833 0.208833 0.0731665" material="boxes_mat" />
+    <geom name="boxes_r0_c5" group="2" pos="5.79167 -2.29167 0.0799277" type="box" size="0.208833 0.208833 0.0799277" material="boxes_mat" />
+    <geom name="boxes_r0_c6" group="2" pos="6.20833 -2.29167 0.0456961" type="box" size="0.208833 0.208833 0.0456961" material="boxes_mat" />
+    <geom name="boxes_r0_c7" group="2" pos="6.625 -2.29167 0.0735122" type="box" size="0.208833 0.208833 0.0735122" material="boxes_mat" />
+    <geom name="boxes_r0_c8" group="2" pos="7.04167 -2.29167 0.08354" type="box" size="0.208833 0.208833 0.08354" material="boxes_mat" />
+    <geom name="boxes_r0_c9" group="2" pos="7.45833 -2.29167 0.097403" type="box" size="0.208833 0.208833 0.097403" material="boxes_mat" />
+    <geom name="boxes_r0_c10" group="2" pos="7.875 -2.29167 0.0380005" type="box" size="0.208833 0.208833 0.0380005" material="boxes_mat" />
+    <geom name="boxes_r0_c11" group="2" pos="8.29167 -2.29167 0.0557891" type="box" size="0.208833 0.208833 0.0557891" material="boxes_mat" />
+    <geom name="boxes_r1_c0" group="2" pos="3.70833 -1.875 0.037707" type="box" size="0.208833 0.208833 0.037707" material="boxes_mat" />
+    <geom name="boxes_r1_c1" group="2" pos="4.125 -1.875 0.0988198" type="box" size="0.208833 0.208833 0.0988198" material="boxes_mat" />
+    <geom name="boxes_r1_c2" group="2" pos="4.54167 -1.875 0.0889423" type="box" size="0.208833 0.208833 0.0889423" material="boxes_mat" />
+    <geom name="boxes_r1_c3" group="2" pos="4.95833 -1.875 0.0335598" type="box" size="0.208833 0.208833 0.0335598" material="boxes_mat" />
+    <geom name="boxes_r1_c4" group="2" pos="5.375 -1.875 0.113486" type="box" size="0.208833 0.208833 0.113486" material="boxes_mat" />
+    <geom name="boxes_r1_c5" group="2" pos="5.79167 -1.875 0.112004" type="box" size="0.208833 0.208833 0.112004" material="boxes_mat" />
+    <geom name="boxes_r1_c6" group="2" pos="6.20833 -1.875 0.0855834" type="box" size="0.208833 0.208833 0.0855834" material="boxes_mat" />
+    <geom name="boxes_r1_c7" group="2" pos="6.625 -1.875 0.0823228" type="box" size="0.208833 0.208833 0.0823228" material="boxes_mat" />
+    <geom name="boxes_r1_c8" group="2" pos="7.04167 -1.875 0.043387" type="box" size="0.208833 0.208833 0.043387" material="boxes_mat" />
+    <geom name="boxes_r1_c9" group="2" pos="7.45833 -1.875 0.0312751" type="box" size="0.208833 0.208833 0.0312751" material="boxes_mat" />
+    <geom name="boxes_r1_c10" group="2" pos="7.875 -1.875 0.0749124" type="box" size="0.208833 0.208833 0.0749124" material="boxes_mat" />
+    <geom name="boxes_r1_c11" group="2" pos="8.29167 -1.875 0.0350618" type="box" size="0.208833 0.208833 0.0350618" material="boxes_mat" />
+    <geom name="boxes_r2_c0" group="2" pos="3.70833 -1.45833 0.0461677" type="box" size="0.208833 0.208833 0.0461677" material="boxes_mat" />
+    <geom name="boxes_r2_c1" group="2" pos="4.125 -1.45833 0.0505652" type="box" size="0.208833 0.208833 0.0505652" material="boxes_mat" />
+    <geom name="boxes_r2_c2" group="2" pos="4.54167 -1.45833 0.032557" type="box" size="0.208833 0.208833 0.032557" material="boxes_mat" />
+    <geom name="boxes_r2_c3" group="2" pos="4.95833 -1.45833 0.0694344" type="box" size="0.208833 0.208833 0.0694344" material="boxes_mat" />
+    <geom name="boxes_r2_c4" group="2" pos="5.375 -1.45833 0.0674451" type="box" size="0.208833 0.208833 0.0674451" material="boxes_mat" />
+    <geom name="boxes_r2_c5" group="2" pos="5.79167 -1.45833 0.101606" type="box" size="0.208833 0.208833 0.101606" material="boxes_mat" />
+    <geom name="boxes_r2_c6" group="2" pos="6.20833 -1.45833 0.0741255" type="box" size="0.208833 0.208833 0.0741255" material="boxes_mat" />
+    <geom name="boxes_r2_c7" group="2" pos="6.625 -1.45833 0.0844248" type="box" size="0.208833 0.208833 0.0844248" material="boxes_mat" />
+    <geom name="boxes_r2_c8" group="2" pos="7.04167 -1.45833 0.0724807" type="box" size="0.208833 0.208833 0.0724807" material="boxes_mat" />
+    <geom name="boxes_r2_c9" group="2" pos="7.45833 -1.45833 0.0863082" type="box" size="0.208833 0.208833 0.0863082" material="boxes_mat" />
+    <geom name="boxes_r2_c10" group="2" pos="7.875 -1.45833 0.068873" type="box" size="0.208833 0.208833 0.068873" material="boxes_mat" />
+    <geom name="boxes_r2_c11" group="2" pos="8.29167 -1.45833 0.0536438" type="box" size="0.208833 0.208833 0.0536438" material="boxes_mat" />
+    <geom name="boxes_r3_c0" group="2" pos="3.70833 -1.04167 0.114801" type="box" size="0.208833 0.208833 0.114801" material="boxes_mat" />
+    <geom name="boxes_r3_c1" group="2" pos="4.125 -1.04167 0.114634" type="box" size="0.208833 0.208833 0.114634" material="boxes_mat" />
+    <geom name="boxes_r3_c2" group="2" pos="4.54167 -1.04167 0.101418" type="box" size="0.208833 0.208833 0.101418" material="boxes_mat" />
+    <geom name="boxes_r3_c3" group="2" pos="4.95833 -1.04167 0.0901638" type="box" size="0.208833 0.208833 0.0901638" material="boxes_mat" />
+    <geom name="boxes_r3_c4" group="2" pos="5.375 -1.04167 0.0567986" type="box" size="0.208833 0.208833 0.0567986" material="boxes_mat" />
+    <geom name="boxes_r3_c5" group="2" pos="5.79167 -1.04167 0.0495216" type="box" size="0.208833 0.208833 0.0495216" material="boxes_mat" />
+    <geom name="boxes_r3_c6" group="2" pos="6.20833 -1.04167 0.0545684" type="box" size="0.208833 0.208833 0.0545684" material="boxes_mat" />
+    <geom name="boxes_r3_c7" group="2" pos="6.625 -1.04167 0.035969" type="box" size="0.208833 0.208833 0.035969" material="boxes_mat" />
+    <geom name="boxes_r3_c8" group="2" pos="7.04167 -1.04167 0.0951345" type="box" size="0.208833 0.208833 0.0951345" material="boxes_mat" />
+    <geom name="boxes_r3_c9" group="2" pos="7.45833 -1.04167 0.064034" type="box" size="0.208833 0.208833 0.064034" material="boxes_mat" />
+    <geom name="boxes_r3_c10" group="2" pos="7.875 -1.04167 0.10196" type="box" size="0.208833 0.208833 0.10196" material="boxes_mat" />
+    <geom name="boxes_r3_c11" group="2" pos="8.29167 -1.04167 0.0628537" type="box" size="0.208833 0.208833 0.0628537" material="boxes_mat" />
+    <geom name="boxes_r4_c0" group="2" pos="3.70833 -0.625 0.111434" type="box" size="0.208833 0.208833 0.111434" material="boxes_mat" />
+    <geom name="boxes_r4_c1" group="2" pos="4.125 -0.625 0.102021" type="box" size="0.208833 0.208833 0.102021" material="boxes_mat" />
+    <geom name="boxes_r4_c2" group="2" pos="4.54167 -0.625 0.0300463" type="box" size="0.208833 0.208833 0.0300463" material="boxes_mat" />
+    <geom name="boxes_r4_c3" group="2" pos="4.95833 -0.625 0.047826" type="box" size="0.208833 0.208833 0.047826" material="boxes_mat" />
+    <geom name="boxes_r4_c4" group="2" pos="5.375 -0.625 0.107373" type="box" size="0.208833 0.208833 0.107373" material="boxes_mat" />
+    <geom name="boxes_r4_c5" group="2" pos="5.79167 -0.625 0.0699489" type="box" size="0.208833 0.208833 0.0699489" material="boxes_mat" />
+    <geom name="boxes_r4_c6" group="2" pos="6.20833 -0.625 0.113331" type="box" size="0.208833 0.208833 0.113331" material="boxes_mat" />
+    <geom name="boxes_r4_c7" group="2" pos="6.625 -0.625 0.0637811" type="box" size="0.208833 0.208833 0.0637811" material="boxes_mat" />
+    <geom name="boxes_r4_c8" group="2" pos="7.04167 -0.625 0.0362083" type="box" size="0.208833 0.208833 0.0362083" material="boxes_mat" />
+    <geom name="boxes_r4_c9" group="2" pos="7.45833 -0.625 0.0835037" type="box" size="0.208833 0.208833 0.0835037" material="boxes_mat" />
+    <geom name="boxes_r4_c10" group="2" pos="7.875 -0.625 0.0961734" type="box" size="0.208833 0.208833 0.0961734" material="boxes_mat" />
+    <geom name="boxes_r4_c11" group="2" pos="8.29167 -0.625 0.0529309" type="box" size="0.208833 0.208833 0.0529309" material="boxes_mat" />
+    <geom name="boxes_r5_c0" group="2" pos="3.70833 -0.208333 0.0374073" type="box" size="0.208833 0.208833 0.0374073" material="boxes_mat" />
+    <geom name="boxes_r5_c1" group="2" pos="4.125 -0.208333 0.0582698" type="box" size="0.208833 0.208833 0.0582698" material="boxes_mat" />
+    <geom name="boxes_r5_c2" group="2" pos="4.54167 -0.208333 0.111946" type="box" size="0.208833 0.208833 0.111946" material="boxes_mat" />
+    <geom name="boxes_r5_c3" group="2" pos="4.95833 -0.208333 0.0944334" type="box" size="0.208833 0.208833 0.0944334" material="boxes_mat" />
+    <geom name="boxes_r5_c4" group="2" pos="5.375 -0.208333 0.0400293" type="box" size="0.208833 0.208833 0.0400293" material="boxes_mat" />
+    <geom name="boxes_r5_c5" group="2" pos="5.79167 -0.208333 0.050943" type="box" size="0.208833 0.208833 0.050943" material="boxes_mat" />
+    <geom name="boxes_r5_c6" group="2" pos="6.20833 -0.208333 0.0385889" type="box" size="0.208833 0.208833 0.0385889" material="boxes_mat" />
+    <geom name="boxes_r5_c7" group="2" pos="6.625 -0.208333 0.0350909" type="box" size="0.208833 0.208833 0.0350909" material="boxes_mat" />
+    <geom name="boxes_r5_c8" group="2" pos="7.04167 -0.208333 0.0977468" type="box" size="0.208833 0.208833 0.0977468" material="boxes_mat" />
+    <geom name="boxes_r5_c9" group="2" pos="7.45833 -0.208333 0.0451026" type="box" size="0.208833 0.208833 0.0451026" material="boxes_mat" />
+    <geom name="boxes_r5_c10" group="2" pos="7.875 -0.208333 0.0775401" type="box" size="0.208833 0.208833 0.0775401" material="boxes_mat" />
+    <geom name="boxes_r5_c11" group="2" pos="8.29167 -0.208333 0.0680311" type="box" size="0.208833 0.208833 0.0680311" material="boxes_mat" />
+    <geom name="boxes_r6_c0" group="2" pos="3.70833 0.208333 0.0462082" type="box" size="0.208833 0.208833 0.0462082" material="boxes_mat" />
+    <geom name="boxes_r6_c1" group="2" pos="4.125 0.208333 0.092211" type="box" size="0.208833 0.208833 0.092211" material="boxes_mat" />
+    <geom name="boxes_r6_c2" group="2" pos="4.54167 0.208333 0.0411322" type="box" size="0.208833 0.208833 0.0411322" material="boxes_mat" />
+    <geom name="boxes_r6_c3" group="2" pos="4.95833 0.208333 0.0847158" type="box" size="0.208833 0.208833 0.0847158" material="boxes_mat" />
+    <geom name="boxes_r6_c4" group="2" pos="5.375 0.208333 0.0399032" type="box" size="0.208833 0.208833 0.0399032" material="boxes_mat" />
+    <geom name="boxes_r6_c5" group="2" pos="5.79167 0.208333 0.0657642" type="box" size="0.208833 0.208833 0.0657642" material="boxes_mat" />
+    <geom name="boxes_r6_c6" group="2" pos="6.20833 0.208333 0.0480936" type="box" size="0.208833 0.208833 0.0480936" material="boxes_mat" />
+    <geom name="boxes_r6_c7" group="2" pos="6.625 0.208333 0.0529326" type="box" size="0.208833 0.208833 0.0529326" material="boxes_mat" />
+    <geom name="boxes_r6_c8" group="2" pos="7.04167 0.208333 0.112529" type="box" size="0.208833 0.208833 0.112529" material="boxes_mat" />
+    <geom name="boxes_r6_c9" group="2" pos="7.45833 0.208333 0.09829" type="box" size="0.208833 0.208833 0.09829" material="boxes_mat" />
+    <geom name="boxes_r6_c10" group="2" pos="7.875 0.208333 0.0558523" type="box" size="0.208833 0.208833 0.0558523" material="boxes_mat" />
+    <geom name="boxes_r6_c11" group="2" pos="8.29167 0.208333 0.105214" type="box" size="0.208833 0.208833 0.105214" material="boxes_mat" />
+    <geom name="boxes_r7_c0" group="2" pos="3.70833 0.625 0.0479104" type="box" size="0.208833 0.208833 0.0479104" material="boxes_mat" />
+    <geom name="boxes_r7_c1" group="2" pos="4.125 0.625 0.0635133" type="box" size="0.208833 0.208833 0.0635133" material="boxes_mat" />
+    <geom name="boxes_r7_c2" group="2" pos="4.54167 0.625 0.102622" type="box" size="0.208833 0.208833 0.102622" material="boxes_mat" />
+    <geom name="boxes_r7_c3" group="2" pos="4.95833 0.625 0.084556" type="box" size="0.208833 0.208833 0.084556" material="boxes_mat" />
+    <geom name="boxes_r7_c4" group="2" pos="5.375 0.625 0.0385283" type="box" size="0.208833 0.208833 0.0385283" material="boxes_mat" />
+    <geom name="boxes_r7_c5" group="2" pos="5.79167 0.625 0.114091" type="box" size="0.208833 0.208833 0.114091" material="boxes_mat" />
+    <geom name="boxes_r7_c6" group="2" pos="6.20833 0.625 0.0481257" type="box" size="0.208833 0.208833 0.0481257" material="boxes_mat" />
+    <geom name="boxes_r7_c7" group="2" pos="6.625 0.625 0.0519536" type="box" size="0.208833 0.208833 0.0519536" material="boxes_mat" />
+    <geom name="boxes_r7_c8" group="2" pos="7.04167 0.625 0.0956786" type="box" size="0.208833 0.208833 0.0956786" material="boxes_mat" />
+    <geom name="boxes_r7_c9" group="2" pos="7.45833 0.625 0.0579612" type="box" size="0.208833 0.208833 0.0579612" material="boxes_mat" />
+    <geom name="boxes_r7_c10" group="2" pos="7.875 0.625 0.0551876" type="box" size="0.208833 0.208833 0.0551876" material="boxes_mat" />
+    <geom name="boxes_r7_c11" group="2" pos="8.29167 0.625 0.0362389" type="box" size="0.208833 0.208833 0.0362389" material="boxes_mat" />
+    <geom name="boxes_r8_c0" group="2" pos="3.70833 1.04167 0.03766" type="box" size="0.208833 0.208833 0.03766" material="boxes_mat" />
+    <geom name="boxes_r8_c1" group="2" pos="4.125 1.04167 0.0795325" type="box" size="0.208833 0.208833 0.0795325" material="boxes_mat" />
+    <geom name="boxes_r8_c2" group="2" pos="4.54167 1.04167 0.0506561" type="box" size="0.208833 0.208833 0.0506561" material="boxes_mat" />
+    <geom name="boxes_r8_c3" group="2" pos="4.95833 1.04167 0.0811091" type="box" size="0.208833 0.208833 0.0811091" material="boxes_mat" />
+    <geom name="boxes_r8_c4" group="2" pos="5.375 1.04167 0.0615948" type="box" size="0.208833 0.208833 0.0615948" material="boxes_mat" />
+    <geom name="boxes_r8_c5" group="2" pos="5.79167 1.04167 0.0685227" type="box" size="0.208833 0.208833 0.0685227" material="boxes_mat" />
+    <geom name="boxes_r8_c6" group="2" pos="6.20833 1.04167 0.111526" type="box" size="0.208833 0.208833 0.111526" material="boxes_mat" />
+    <geom name="boxes_r8_c7" group="2" pos="6.625 1.04167 0.0711166" type="box" size="0.208833 0.208833 0.0711166" material="boxes_mat" />
+    <geom name="boxes_r8_c8" group="2" pos="7.04167 1.04167 0.0788386" type="box" size="0.208833 0.208833 0.0788386" material="boxes_mat" />
+    <geom name="boxes_r8_c9" group="2" pos="7.45833 1.04167 0.103655" type="box" size="0.208833 0.208833 0.103655" material="boxes_mat" />
+    <geom name="boxes_r8_c10" group="2" pos="7.875 1.04167 0.0455404" type="box" size="0.208833 0.208833 0.0455404" material="boxes_mat" />
+    <geom name="boxes_r8_c11" group="2" pos="8.29167 1.04167 0.0431015" type="box" size="0.208833 0.208833 0.0431015" material="boxes_mat" />
+    <geom name="boxes_r9_c0" group="2" pos="3.70833 1.45833 0.107216" type="box" size="0.208833 0.208833 0.107216" material="boxes_mat" />
+    <geom name="boxes_r9_c1" group="2" pos="4.125 1.45833 0.0995132" type="box" size="0.208833 0.208833 0.0995132" material="boxes_mat" />
+    <geom name="boxes_r9_c2" group="2" pos="4.54167 1.45833 0.0512074" type="box" size="0.208833 0.208833 0.0512074" material="boxes_mat" />
+    <geom name="boxes_r9_c3" group="2" pos="4.95833 1.45833 0.0461331" type="box" size="0.208833 0.208833 0.0461331" material="boxes_mat" />
+    <geom name="boxes_r9_c4" group="2" pos="5.375 1.45833 0.0928511" type="box" size="0.208833 0.208833 0.0928511" material="boxes_mat" />
+    <geom name="boxes_r9_c5" group="2" pos="5.79167 1.45833 0.109934" type="box" size="0.208833 0.208833 0.109934" material="boxes_mat" />
+    <geom name="boxes_r9_c6" group="2" pos="6.20833 1.45833 0.0467101" type="box" size="0.208833 0.208833 0.0467101" material="boxes_mat" />
+    <geom name="boxes_r9_c7" group="2" pos="6.625 1.45833 0.110762" type="box" size="0.208833 0.208833 0.110762" material="boxes_mat" />
+    <geom name="boxes_r9_c8" group="2" pos="7.04167 1.45833 0.104986" type="box" size="0.208833 0.208833 0.104986" material="boxes_mat" />
+    <geom name="boxes_r9_c9" group="2" pos="7.45833 1.45833 0.0813004" type="box" size="0.208833 0.208833 0.0813004" material="boxes_mat" />
+    <geom name="boxes_r9_c10" group="2" pos="7.875 1.45833 0.0658239" type="box" size="0.208833 0.208833 0.0658239" material="boxes_mat" />
+    <geom name="boxes_r9_c11" group="2" pos="8.29167 1.45833 0.0388264" type="box" size="0.208833 0.208833 0.0388264" material="boxes_mat" />
+    <geom name="boxes_r10_c0" group="2" pos="3.70833 1.875 0.0332892" type="box" size="0.208833 0.208833 0.0332892" material="boxes_mat" />
+    <geom name="boxes_r10_c1" group="2" pos="4.125 1.875 0.111828" type="box" size="0.208833 0.208833 0.111828" material="boxes_mat" />
+    <geom name="boxes_r10_c2" group="2" pos="4.54167 1.875 0.0502646" type="box" size="0.208833 0.208833 0.0502646" material="boxes_mat" />
+    <geom name="boxes_r10_c3" group="2" pos="4.95833 1.875 0.0898893" type="box" size="0.208833 0.208833 0.0898893" material="boxes_mat" />
+    <geom name="boxes_r10_c4" group="2" pos="5.375 1.875 0.0518434" type="box" size="0.208833 0.208833 0.0518434" material="boxes_mat" />
+    <geom name="boxes_r10_c5" group="2" pos="5.79167 1.875 0.100016" type="box" size="0.208833 0.208833 0.100016" material="boxes_mat" />
+    <geom name="boxes_r10_c6" group="2" pos="6.20833 1.875 0.0806996" type="box" size="0.208833 0.208833 0.0806996" material="boxes_mat" />
+    <geom name="boxes_r10_c7" group="2" pos="6.625 1.875 0.054942" type="box" size="0.208833 0.208833 0.054942" material="boxes_mat" />
+    <geom name="boxes_r10_c8" group="2" pos="7.04167 1.875 0.0449118" type="box" size="0.208833 0.208833 0.0449118" material="boxes_mat" />
+    <geom name="boxes_r10_c9" group="2" pos="7.45833 1.875 0.09123" type="box" size="0.208833 0.208833 0.09123" material="boxes_mat" />
+    <geom name="boxes_r10_c10" group="2" pos="7.875 1.875 0.035846" type="box" size="0.208833 0.208833 0.035846" material="boxes_mat" />
+    <geom name="boxes_r10_c11" group="2" pos="8.29167 1.875 0.0494137" type="box" size="0.208833 0.208833 0.0494137" material="boxes_mat" />
+    <geom name="boxes_r11_c0" group="2" pos="3.70833 2.29167 0.0775461" type="box" size="0.208833 0.208833 0.0775461" material="boxes_mat" />
+    <geom name="boxes_r11_c1" group="2" pos="4.125 2.29167 0.102454" type="box" size="0.208833 0.208833 0.102454" material="boxes_mat" />
+    <geom name="boxes_r11_c2" group="2" pos="4.54167 2.29167 0.0822158" type="box" size="0.208833 0.208833 0.0822158" material="boxes_mat" />
+    <geom name="boxes_r11_c3" group="2" pos="4.95833 2.29167 0.0538186" type="box" size="0.208833 0.208833 0.0538186" material="boxes_mat" />
+    <geom name="boxes_r11_c4" group="2" pos="5.375 2.29167 0.107976" type="box" size="0.208833 0.208833 0.107976" material="boxes_mat" />
+    <geom name="boxes_r11_c5" group="2" pos="5.79167 2.29167 0.0473382" type="box" size="0.208833 0.208833 0.0473382" material="boxes_mat" />
+    <geom name="boxes_r11_c6" group="2" pos="6.20833 2.29167 0.0314089" type="box" size="0.208833 0.208833 0.0314089" material="boxes_mat" />
+    <geom name="boxes_r11_c7" group="2" pos="6.625 2.29167 0.0528815" type="box" size="0.208833 0.208833 0.0528815" material="boxes_mat" />
+    <geom name="boxes_r11_c8" group="2" pos="7.04167 2.29167 0.067885" type="box" size="0.208833 0.208833 0.067885" material="boxes_mat" />
+    <geom name="boxes_r11_c9" group="2" pos="7.45833 2.29167 0.0351387" type="box" size="0.208833 0.208833 0.0351387" material="boxes_mat" />
+    <geom name="boxes_r11_c10" group="2" pos="7.875 2.29167 0.0449816" type="box" size="0.208833 0.208833 0.0449816" material="boxes_mat" />
+    <geom name="boxes_r11_c11" group="2" pos="8.29167 2.29167 0.0613468" type="box" size="0.208833 0.208833 0.0613468" material="boxes_mat" />
+    <!-- slope_pyramid: centered at 12 0 0, width=5, length=5. -->
+    <geom name="slope_pyramid" group="2" pos="12 0 0" type="mesh" mesh="slope_pyramid_mesh" material="slope_mat" />
+    <!-- random_rough: centered at 18 0 0, width=5, length=5. -->
+    <geom name="random_rough" group="2" pos="18 0 0" type="hfield" hfield="random_rough_hfield" material="random_rough_mat" />
+  </worldbody>
+  <sensor>
+    <plugin name="height_scanner" plugin="mujoco.sensor.ray_caster" objtype="camera" objname="height_scanner_camera">
+      <config key="type" value="yaw" />
+      <config key="resolution" value="0.05" />
+      <config key="size" value="1.0 1.6" />
+      <config key="dis_range" value="0.01 30" />
+      <config key="sensor_data_types" value="pos_w" />
+      <config key="n_step_update" value="10" />
+      <config key="geomgroup" value="0 0 1 0 0 0" />
+      <config key="detect_parentbody" value="0" />
+    </plugin>
+  </sensor>
+</mujoco>

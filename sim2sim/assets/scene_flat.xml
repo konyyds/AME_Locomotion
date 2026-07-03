@@ -1,0 +1,39 @@
+<mujoco model="g1_29dof rough terrain scene">
+  <include file="g1_29dof_raycaster.xml" />
+
+  <extension>
+    <plugin plugin="mujoco.sensor.ray_caster" />
+  </extension>
+
+  <statistic center="9.0 0.0 0.25" extent="20.0" />
+
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0" />
+    <rgba haze="0.15 0.25 0.35 1" />
+    <global azimuth="-130" elevation="-25" />
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072" />
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300" />
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2" />
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 2.5" dir="0 0 -1" directional="true" />
+    <geom name="floor" group="2" size="0 0 0.05" type="plane" material="groundplane" />
+  </worldbody>
+
+  <sensor>
+    <plugin name="height_scanner" plugin="mujoco.sensor.ray_caster" objtype="camera" objname="height_scanner_camera">
+      <config key="type" value="yaw" />
+      <config key="resolution" value="0.05" />
+      <config key="size" value="1.0 1.6" />
+      <config key="dis_range" value="0.01 30" />
+      <config key="sensor_data_types" value="pos_w" />
+      <config key="n_step_update" value="10" />
+      <config key="geomgroup" value="0 0 1 0 0 0" />
+      <config key="detect_parentbody" value="0" />
+    </plugin>
+  </sensor>
+</mujoco>
