@@ -97,41 +97,39 @@ class HeightScanner:
         end = start + self.pos_w_size
         pos_w = self.data.sensordata[start:end].reshape(-1, 3)
 
+        # 检测无效射线（MuJoCo 未命中的射线返回世界原点）
+        hit_dist = np.linalg.norm(pos_w, axis=1)
+        valid_mask = hit_dist > 0.1
+
+        # 传感器位置：torso 本体，不加 20m 偏移
+        # IsaacLab 的 sensor.data.pos_w 就是 torso 位置，不含 offset
         sensor_pos = self.data.cam_xpos[self.camera_id]
         rot_mat = self.data.cam_xmat[self.camera_id].reshape(3, 3)
         yaw = np.arctan2(rot_mat[1, 0], rot_mat[0, 0])
         c, s = np.cos(yaw), np.sin(yaw)
 
-        sensor_pos_offset = sensor_pos.copy()
-        sensor_pos_offset[2] += 20.0
-        rel = pos_w - sensor_pos_offset
-        hit_dist = np.linalg.norm(pos_w, axis=1)
-        valid_mask = hit_dist > 0.1
+        rel = pos_w - sensor_pos
         local_x =  c * rel[:, 0] + s * rel[:, 1]
         local_y = -s * rel[:, 0] + c * rel[:, 1]
         local_z = rel[:, 2]
 
         local = np.stack([local_x, local_y, local_z], axis=-1)
+
+        # 保存射线命中位置（用于可视化）
+        self.hit_positions[:] = pos_w
+
+        # 无效射线设为 (0, 0, -1.2)
+        local[~valid_mask] = 0.0
+        local[~valid_mask, 2] = -1.2
+
+        # z 裁剪
         local[:, 2] = np.clip(local[:, 2], -1.2, 0.0)
 
-        z_vals = local[:, 2]
-        x_vals = local[:, 0]
-        y_vals = local[:, 1]
-        if self._step_counter % 100 == 0:
-            print(f"[update_3d] x=[{x_vals.min():.3f}, {x_vals.max():.3f}] "
-                  f"y=[{y_vals.min():.3f}, {y_vals.max():.3f}] "
-                  f"z=[{z_vals.min():.3f}, {z_vals.max():.3f}] "
-                  f"sensor_z={sensor_pos[2]:.3f}")
-        self._step_counter += 1
-
-        # NO invalid filtering - keep all raw values
-        nan_mask = np.isnan(local).any(axis=-1)
-        local[nan_mask] = 0.0
-        local[~valid_mask] = 0.0
-
+        # Y 轴翻转
         if config.HEIGHT_SCANNER_FLIP_Y_FOR_ISAACLAB_ORDER:
-            local = local.reshape(self.v_ray_num, self.h_ray_num, 3)[:, ::-1, :]
+            local = local.reshape(self.v_ray_num, self.h_ray_num, 3)[::-1]
 
+        self._step_counter += 1
         return local.reshape(-1).astype(np.float32)
 
     def draw_points(self, user_scn):

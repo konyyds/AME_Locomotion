@@ -138,6 +138,10 @@ class RaycasterSim2Sim:
         self.command[:] = 0.0
         self.last_action[:] = 0.0
         self.env.reset(self.default_joint_pos_sdk)
+        # 预热 raycaster：先执行一个完整的控制周期让射线计算完成
+        for _ in range(self.decimation):
+            self.env.data.ctrl[:] = self.compute_torque(self.default_joint_pos_sdk)
+            self.env.step()
         self.reset_observation_history()
         print("Reset simulation state.")
 
@@ -214,7 +218,7 @@ class RaycasterSim2Sim:
         print(f"  => Training uses default_joint_pos as offset!")
         print(f"  => deploy.yaml offset=0.0 is WRONG if training used default_joint_pos")
 
-    def update_observation(self) -> dict[str, np.ndarray]:
+    def update_observation(self, step_count: int = 0) -> dict[str, np.ndarray]:
         sensordata = self.env.data.sensordata
         joint_pos_sdk = sensordata[: self.num_joints].astype(np.float32)
         joint_vel_sdk = sensordata[
@@ -232,6 +236,13 @@ class RaycasterSim2Sim:
         joint_vel_asset = joint_vel_sdk[self.asset_to_sdk]
         last_action = self.last_action.copy()
         height_scanner = self.env.height_scanner.update_3d().copy()
+        if step_count % 100 == 0:
+            hs = height_scanner.reshape(21, 33, 3)
+            print(f"[terrain] top-left:  x={hs[0,0,0]:.3f} y={hs[0,0,1]:.3f} z={hs[0,0,2]:.3f}")
+            print(f"[terrain] top-right: x={hs[0,-1,0]:.3f} y={hs[0,-1,1]:.3f} z={hs[0,-1,2]:.3f}")
+            print(f"[terrain] center:    x={hs[10,16,0]:.3f} y={hs[10,16,1]:.3f} z={hs[10,16,2]:.3f}")
+            print(f"[terrain] bot-left:  x={hs[-1,0,0]:.3f} y={hs[-1,0,1]:.3f} z={hs[-1,0,2]:.3f}")
+            print(f"[terrain] bot-right: x={hs[-1,-1,0]:.3f} y={hs[-1,-1,1]:.3f} z={hs[-1,-1,2]:.3f}")
 
         raw_obs_terms = {
             "base_ang_vel": imu_gyro,
@@ -288,7 +299,7 @@ class RaycasterSim2Sim:
         while self.env.is_running():
             start_time = time.perf_counter()
 
-            raw_obs = self.update_observation()
+            raw_obs = self.update_observation(step_count)
             obs = self.get_history_obs()
             # === DEBUG START ===
             if step_count < 5 or step_count % 100 == 0:

@@ -12,7 +12,8 @@ ASSETS_DIR = os.path.join(SIM2SIM_DIR, "assets")
 TRAIN_RUN_DIR = os.path.join(SIM2SIM_DIR, "policy", "2026-06-12_10-36-30")
 
 # ROBOT_SCENE = os.path.join(ASSETS_DIR, "scene_flat.xml")
-ROBOT_SCENE = os.path.join(ASSETS_DIR, "scene_rough.xml")
+# ROBOT_SCENE = os.path.join(ASSETS_DIR, "scene_rough.xml")
+ROBOT_SCENE = os.path.join(ASSETS_DIR, "scene_plum_blossom.xml")
 
 RAYCASTER_PLUGIN_LIBRARY = os.path.join(SIM2SIM_DIR, "libsensor_raycaster.so")
 
@@ -40,8 +41,8 @@ VIEWER_ELEVATION = -45.0
 
 USE_SECONDARY_IMU = False
 
-INIT_BASE_POS = (-4.0, 0.0, 0.8)
-INIT_BASE_QUAT_WXYZ = (1.0, 0.0, 0.0, 0.0)
+INIT_BASE_POS = (5.5, 0.0, 0.8)
+INIT_BASE_QUAT_WXYZ = (0.0, 0.0, 0.0, 1.0)  # yaw=π, 面朝 -x
 
 COMMAND_STEP = (0.2, 0.1, 0.5)
 COMMAND_RANGES = {

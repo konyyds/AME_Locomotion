@@ -121,6 +121,13 @@ def elevation_map(env: ManagerBasedEnv, sensor_cfg: SceneEntityCfg, noise: bool 
 
     current_map = sensor_coords.reshape(N, B * 3)
 
+    hs = sensor_coords[0, 0].reshape(B, 3)
+    print(f"[elevation] top-left:  x={hs[0,0]:.3f} y={hs[0,1]:.3f} z={hs[0,2]:.3f}")
+    print(f"[elevation] top-right: x={hs[0,-1]:.3f} y={hs[0,-1]:.3f} z={hs[0,-1]:.3f}")
+    print(f"[elevation] center:    x={hs[len(hs)//2,0]:.3f} y={hs[len(hs)//2,1]:.3f} z={hs[len(hs)//2,2]:.3f}")
+    print(f"[elevation] bot-left:  x={hs[-1,0]:.3f} y={hs[-1,1]:.3f} z={hs[-1,2]:.3f}")
+    print(f"[elevation] bot-right: x={hs[-1,-1]:.3f} y={hs[-1,-1]:.3f} z={hs[-1,-1]:.3f}")
+
     return current_map
     
     # if noise:
