@@ -47,7 +47,9 @@ def quat_apply_inverse(quat_wxyz: np.ndarray, vec: np.ndarray) -> np.ndarray:
 class RaycasterSim2Sim:
     def __init__(self, args):
         self.args = args
-        self.command = np.array([-0.5, 0.0, 0.0], dtype=np.float32)
+        self.command = np.array(config.INIT_COMMAND, dtype=np.float32)
+        self.gamepad_present = False
+        self._prev_a_pressed = False
 
         # MuJoCo scene
         self.env = MujocoRaycasterEnv(
@@ -98,6 +100,7 @@ class RaycasterSim2Sim:
         self.torque_max = self.env.model.actuator_ctrlrange[:, 1].astype(np.float32)
 
         self.last_action = np.zeros(self.num_joints, dtype=np.float32)
+        self.attention_weights = None
 
         imu_prefix = "secondary_imu" if config.USE_SECONDARY_IMU else "imu"
         self.imu_quat_adr = self.env.sensor_address(f"{imu_prefix}_quat")
@@ -189,6 +192,69 @@ class RaycasterSim2Sim:
             "Keyboard: Up/Down or KP8/KP2 vx, Left/Right or KP4/KP6 yaw, "
             "Space/KP5 stop, R reset."
         )
+        if self.gamepad_present:
+            print(
+                "Gamepad: Left stick fwd/lat, Right stick X yaw, "
+                "A reset, B stop."
+            )
+
+    def poll_gamepad(self):
+        if glfw is None or not glfw.joystick_present(glfw.JOYSTICK_1):
+            self.gamepad_present = False
+            return
+        self.gamepad_present = True
+        axes_tuple = glfw.get_joystick_axes(glfw.JOYSTICK_1)
+        btn_tuple = glfw.get_joystick_buttons(glfw.JOYSTICK_1)
+        axes_ptr = axes_tuple[0]
+        axes_count = axes_tuple[1]
+        btn_ptr = btn_tuple[0]
+        btn_count = btn_tuple[1]
+
+        dead_zone_right = 0.5
+        vx_step_max = 0.01
+        yaw_step_max = 0.02
+        lx = float(axes_ptr[0]) if axes_count > 0 else 0.0
+        ly = float(axes_ptr[1]) if axes_count > 1 else 0.0
+        rx = float(axes_ptr[3]) if axes_count > 3 else 0.0
+
+        changed = False
+        if ly < -dead_zone_right:
+            self.command[0] += vx_step_max * abs(ly)
+            changed = True
+        elif ly > dead_zone_right:
+            self.command[0] -= vx_step_max * abs(ly)
+            changed = True
+        if lx < -dead_zone_right:
+            self.command[1] -= vx_step_max * abs(lx)
+            changed = True
+        elif lx > dead_zone_right:
+            self.command[1] += vx_step_max * abs(lx)
+            changed = True
+        if rx < -dead_zone_right:
+            self.command[2] += yaw_step_max * abs(rx)
+            changed = True
+        elif rx > dead_zone_right:
+            self.command[2] -= yaw_step_max * abs(rx)
+            changed = True
+
+        ranges = config.COMMAND_RANGES
+        self.command[0] = np.clip(self.command[0], *ranges["lin_vel_x"])
+        self.command[1] = np.clip(self.command[1], *ranges["lin_vel_y"])
+        self.command[2] = np.clip(self.command[2], *ranges["ang_vel_z"])
+
+        if changed:
+            print(
+                "Command "
+                f"vx={self.command[0]: .2f}, "
+                f"vy={self.command[1]: .2f}, "
+                f"yaw={self.command[2]: .2f}"
+            )
+
+        # A 键 → 重置（上升沿）
+        a_pressed = btn_count > 0 and btn_ptr[0] == glfw.PRESS
+        if a_pressed and not self._prev_a_pressed:
+            self.reset()
+        self._prev_a_pressed = a_pressed
 
     def print_startup_info(self, scene_path: str):
         obs_dim = 0
@@ -236,13 +302,6 @@ class RaycasterSim2Sim:
         joint_vel_asset = joint_vel_sdk[self.asset_to_sdk]
         last_action = self.last_action.copy()
         height_scanner = self.env.height_scanner.update_3d().copy()
-        if step_count % 100 == 0:
-            hs = height_scanner.reshape(21, 33, 3)
-            print(f"[terrain] top-left:  x={hs[0,0,0]:.3f} y={hs[0,0,1]:.3f} z={hs[0,0,2]:.3f}")
-            print(f"[terrain] top-right: x={hs[0,-1,0]:.3f} y={hs[0,-1,1]:.3f} z={hs[0,-1,2]:.3f}")
-            print(f"[terrain] center:    x={hs[10,16,0]:.3f} y={hs[10,16,1]:.3f} z={hs[10,16,2]:.3f}")
-            print(f"[terrain] bot-left:  x={hs[-1,0,0]:.3f} y={hs[-1,0,1]:.3f} z={hs[-1,0,2]:.3f}")
-            print(f"[terrain] bot-right: x={hs[-1,-1,0]:.3f} y={hs[-1,-1,1]:.3f} z={hs[-1,-1,2]:.3f}")
 
         raw_obs_terms = {
             "base_ang_vel": imu_gyro,
@@ -275,11 +334,6 @@ class RaycasterSim2Sim:
         action_asset = raw_action_asset * self.action_scale_asset + self.action_offset_asset
         action_sdk = np.zeros(self.num_joints, dtype=np.float32)
         action_sdk[self.asset_to_sdk] = action_asset
-        if step_count % 100 == 0:
-            print(f"[action] raw={raw_action_asset[:5]}")
-            print(f"[action] scale={self.action_scale_asset[:5]}")
-            print(f"[action] offset={self.action_offset_asset[:5]}")
-            print(f"[action] target_sdk={action_sdk[:5]}")
         return action_sdk
 
     def compute_torque(self, target_joint_pos_sdk: np.ndarray) -> np.ndarray:
@@ -300,49 +354,34 @@ class RaycasterSim2Sim:
             start_time = time.perf_counter()
 
             raw_obs = self.update_observation(step_count)
+            self.poll_gamepad()
             obs = self.get_history_obs()
-            # === DEBUG START ===
-            if step_count < 5 or step_count % 100 == 0:
-                height = obs[-2079:]
-                proprio = obs[:-2079]
-                print(f"[DEBUG step={step_count}]")
-                print(f"  proprio({len(proprio)}): {proprio[:6]}... (first 6)")
-                print(f"  height({len(height)}): min={height.min():.3f} max={height.max():.3f} "
-                      f"mean={height.mean():.3f} nan_count={np.isnan(height).sum()}")
-                print(f"  command: vx={self.command[0]:.2f} yaw={self.command[2]:.2f}")
-                print(f"  joint_pos_rel range: [{raw_obs.get('joint_pos_rel', np.array([0])).min():.3f}, "
-                      f"{raw_obs.get('joint_pos_rel', np.array([0])).max():.3f}]")
-            # === DEBUG END ===
-            raw_action = self.policy(obs)
+            raw_action, self.attention_weights = self.policy(obs)
             if raw_action.shape[0] != self.num_joints:
                 raise ValueError(
                     f"Policy action dim {raw_action.shape[0]} != {self.num_joints}"
                 )
-            # === DEBUG START ===
-            if step_count < 5 or step_count % 100 == 0:
-                print(f"  action: min={raw_action.min():.3f} max={raw_action.max():.3f} mean={raw_action.mean():.3f}")
-            # === DEBUG END ===
 
-            target_joint_pos_sdk = self.action_to_joint_pos_sdk(raw_action, step_count)
+            target_joint_pos_sdk = self.action_to_joint_pos_sdk(raw_action)
             for _ in range(self.decimation):
                 torque = self.compute_torque(target_joint_pos_sdk)
                 self.env.data.ctrl[:] = torque
                 self.env.step()
-            if step_count % 50 == 0:
-                joint_pos_sdk = self.env.data.sensordata[: self.num_joints].astype(np.float32)
-                print(f"[PD] target_sdk前5={target_joint_pos_sdk[:5]}")
-                print(f"[PD] actual_sdk前5={joint_pos_sdk[:5]}")
-                print(f"[PD] torque前5={torque[:5]}")
-            if step_count < 5:
-                joint_pos_sdk = self.env.data.sensordata[: self.num_joints].astype(np.float32)
-                print(f"[step={step_count}] action前5={raw_action[:5]}")
-                print(f"[step={step_count}] torque前5={torque[:5]}")
-                print(f"[step={step_count}] joint_pos_sdk前5={joint_pos_sdk[:5]}")
-                print(f"[step={step_count}] target前5={target_joint_pos_sdk[:5]}")
 
             step_count += 1
 
             self.env.draw_debug()
+            if hasattr(self.env, 'viewer_scn'):
+                viewer_scn = self.env.viewer_scn
+            elif hasattr(self.env, 'viewer') and self.env.viewer is not None:
+                viewer_scn = self.env.viewer.user_scn
+            else:
+                viewer_scn = None
+            self.env.height_scanner.draw_attention(
+                viewer_scn,
+                self.attention_weights,
+                self.env.height_scanner.hit_positions.copy(),
+            )
             self.env.sync()
 
             if steps is not None and step_count >= steps:

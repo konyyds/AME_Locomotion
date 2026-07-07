@@ -105,6 +105,7 @@ class HeightScanner:
         # IsaacLab 的 sensor.data.pos_w 就是 torso 位置，不含 offset
         sensor_pos = self.data.cam_xpos[self.camera_id]
         rot_mat = self.data.cam_xmat[self.camera_id].reshape(3, 3)
+
         yaw = np.arctan2(rot_mat[1, 0], rot_mat[0, 0])
         c, s = np.cos(yaw), np.sin(yaw)
 
@@ -150,6 +151,79 @@ class HeightScanner:
             )
             user_scn.ngeom += 1
 
+    def draw_attention(self, user_scn, attention_weights, hit_positions_3d):
+        """根据注意力权重绘制彩色点。
+
+        Args:
+            user_scn: MuJoCo viewer scene
+            attention_weights: (187,) CNN 输出的 11×17 个注意力权重
+            hit_positions_3d: (693, 3) 原始网格的 3D 世界坐标
+        """
+        if user_scn is None or attention_weights is None:
+            return
+        if len(attention_weights) != 187:
+            return
+
+        # 注意力权重归一化到 [0, 1]
+        attn = attention_weights.copy()
+        attn = np.nan_to_num(attn, nan=0.0, posinf=0.0, neginf=0.0)
+        attn_min = attn.min()
+        attn_max = attn.max()
+        if attn_max - attn_min > 1e-8:
+            attn = (attn - attn_min) / (attn_max - attn_min)
+        else:
+            attn[:] = 0.5
+
+        # 将 187 个注意力权重映射到 693 个网格点
+        # CNN stride=2: 输入 (21, 33) → 输出 (11, 17)
+        # 每个 CNN 输出点对应 ~4 个输入点
+        attn_2d = attn.reshape(11, 17)
+
+        size = np.array([0.02] * 3, dtype=np.float64)
+        mat = np.eye(3, dtype=np.float64).reshape(-1)
+
+        # 射线网格的原始形状: v=21 行, h=33 列
+        n_rows = 21
+        n_cols = 33
+        hit_positions_3d = hit_positions_3d.reshape(n_rows, n_cols, 3)
+
+        if config.HEIGHT_SCANNER_FLIP_Y_FOR_ISAACLAB_ORDER:
+            hit_positions_3d = hit_positions_3d[::-1]
+
+        for row in range(n_rows):
+            for col in range(n_cols):
+                if user_scn.ngeom >= user_scn.maxgeom:
+                    break
+                pos = hit_positions_3d[row, col]
+                if not np.all(np.isfinite(pos)):
+                    continue
+
+                # 映射到 CNN 输出位置
+                cnn_row = min(row // 2, 10)
+                cnn_col = min(col // 2, 16)
+                w = attn_2d[cnn_row, cnn_col]
+
+                # 彩虹色：蓝→青→绿→黄→红
+                if w < 0.25:
+                    t = w / 0.25
+                    r, g, b = 0.0, t, 1.0
+                elif w < 0.5:
+                    t = (w - 0.25) / 0.25
+                    r, g, b = 0.0, 1.0, 1.0 - t
+                elif w < 0.75:
+                    t = (w - 0.5) / 0.25
+                    r, g, b = t, 1.0, 0.0
+                else:
+                    t = (w - 0.75) / 0.25
+                    r, g, b = 1.0, 1.0 - t, 0.0
+                rgba = np.array([r, g, b, 0.8], dtype=np.float32)
+
+                geom = user_scn.geoms[user_scn.ngeom]
+                mujoco.mjv_initGeom(
+                    geom, mujoco.mjtGeom.mjGEOM_SPHERE, size, pos.astype(np.float64), mat, rgba
+                )
+                user_scn.ngeom += 1
+
 
 class MujocoRaycasterEnv:
     def __init__(
@@ -171,6 +245,15 @@ class MujocoRaycasterEnv:
             config.HEIGHT_SCANNER_SENSOR_NAME,
             config.HEIGHT_SCANNER_CAMERA_NAME,
         )
+
+        # 打印 actuator 参数
+        print("=== MuJoCo Actuator Parameters ===")
+        for i in range(self.model.nu):
+            name = mujoco.mj_id2name(self.model, mujoco.mjtObj.mjOBJ_ACTUATOR, i)
+            gear = self.model.actuator_gear[i, 0]
+            ctrlrange = self.model.actuator_ctrlrange[i]
+            print(f"  actuator[{i}] {name}: gear={gear}, ctrlrange=[{ctrlrange[0]:.1f}, {ctrlrange[1]:.1f}]")
+        print(f"  model actuator_biasprm: {self.model.actuator_biasprm[:5]}")
 
     def sensor_address(self, sensor_name: str) -> int:
         sensor_id = mujoco.mj_name2id(

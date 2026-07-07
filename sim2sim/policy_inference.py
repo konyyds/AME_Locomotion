@@ -39,8 +39,11 @@ class PolicyInference:
     def forward(self, obs):
         t = torch.from_numpy(obs.astype(np.float32)).unsqueeze(0).to(self.device)
         with torch.no_grad():
-            action, _ = self.policy.act_inference({"policy": t})
-        return action.cpu().numpy().reshape(-1).astype(np.float32)
+            action, attn_weights = self.policy.act_inference({"policy": t})
+        action_np = action.cpu().numpy().reshape(-1).astype(np.float32)
+        # attn_weights: (1, 1, 187) → squeeze → (187,)
+        attn_np = attn_weights.cpu().numpy().squeeze().astype(np.float32)
+        return action_np, attn_np
 
     def __call__(self, obs):
         return self.forward(obs)

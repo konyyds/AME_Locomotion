@@ -39,9 +39,12 @@ VIEWER_DISTANCE = 25.0
 VIEWER_AZIMUTH = 0.0
 VIEWER_ELEVATION = -45.0
 
+INIT_COMMAND = [0.8, 0.0, 0.0]    # vx=0.8, vy=0, yaw=0
+YAW_BIAS = 0.0                     # 不再使用
+
 USE_SECONDARY_IMU = False
 
-INIT_BASE_POS = (5.5, 0.0, 0.8)
+INIT_BASE_POS = (7.0, 0.0, 0.8)
 INIT_BASE_QUAT_WXYZ = (0.0, 0.0, 0.0, 1.0)  # yaw=π, 面朝 -x
 
 COMMAND_STEP = (0.2, 0.1, 0.5)

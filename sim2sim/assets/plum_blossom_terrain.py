@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Ground → One-sided stairs → Platform → Plum-blossom piles.
-
-Robot spawns on ground (z=0), walks up staircase to platform (z=0.4m),
-then onto plum-blossom piles with tops flush at z=0.4m.
-All structures are adjacent — no gaps.
-"""
+"""Ground → Stairs → Platform → Plum-blossom piles → Platform → Stairs → Ground."""
 
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
@@ -21,25 +16,26 @@ def fmt(v):
 
 @dataclass
 class TerrainCfg:
-    total_height: float = 0.40
+    total_height: float = 1.0
 
     # 台阶
-    stairs_right_x: float = 4.0   # 最矮台阶右边缘（机器人从这边上）
-    stair_depth: float = 0.30     # 每级台阶 x 方向深度
-    stair_width_y: float = 2.0    # 台阶 y 方向宽度
+    stair_depth: float = 0.30
+    stair_width_y: float = 2.0
     stair_layers: int = 5
 
-    # 平台（紧接台阶左侧）
-    platform_length_x: float = 2.5
+    # 平台
+    platform_length_x: float = 2.0
     platform_width_y: float = 3.0
 
-    # 梅花桩（紧接平台左侧）
+    # 梅花桩
+    pile_center_x: float = -3.0
+    pile_center_y: float = 0.0
     pile_rows: int = 10
     pile_cols: int = 15
-    pile_size_x: float = 0.20
-    pile_size_y: float = 0.20
-    pile_spacing_x: float = 0.35
-    pile_spacing_y: float = 0.35
+    pile_size_x: float = 0.25
+    pile_size_y: float = 0.25
+    pile_spacing_x: float = 0.45
+    pile_spacing_y: float = 0.45
     pile_stagger: bool = True
 
 
@@ -47,7 +43,6 @@ def build_scene(output_path: Path, cfg: TerrainCfg | None = None):
     cfg = cfg or TerrainCfg()
     root = ET.parse(TEMPLATE_SCENE).getroot()
 
-    # --- Asset ---
     asset = root.find("asset")
     asset.clear()
     ET.SubElement(asset, "texture", {
@@ -68,7 +63,6 @@ def build_scene(output_path: Path, cfg: TerrainCfg | None = None):
     ET.SubElement(asset, "material", {"name": "platform_mat", "rgba": "0.46 0.46 0.58 1"})
     ET.SubElement(asset, "material", {"name": "pile_mat", "rgba": "0.7 0.45 0.3 1"})
 
-    # --- Worldbody ---
     wb = root.find("worldbody")
     wb.clear()
     ET.SubElement(wb, "light", {"pos": "0 0 2.5", "dir": "0 0 -1", "directional": "true"})
@@ -78,57 +72,55 @@ def build_scene(output_path: Path, cfg: TerrainCfg | None = None):
     })
 
     th = cfg.total_height
-
-    # ====== 1. 台阶（单侧阶梯，从右往左逐级升高） ======
     step_h = th / cfg.stair_layers
-    wb.append(ET.Comment(
-        f" Stairs: {cfg.stair_layers} steps, rightmost at x={fmt(cfg.stairs_right_x)}"
-    ))
+    sx = cfg.pile_size_x / 2.0
+    sy = cfg.pile_size_y / 2.0
+
+    # ====== 上行台阶 ======
+    up_stair_right = 5.0
+    wb.append(ET.Comment(" Up stairs "))
     for i in range(cfg.stair_layers):
         h = step_h * (i + 1)
-        cx = cfg.stairs_right_x - (i + 0.5) * cfg.stair_depth
+        cx = up_stair_right - (i + 0.5) * cfg.stair_depth
         ET.SubElement(wb, "geom", {
-            "name": f"stair_{i}", "group": "2",
+            "name": f"up_stair_{i}", "group": "2",
             "pos": f"{fmt(cx)} 0 {fmt(h / 2.0)}",
             "type": "box",
             "size": f"{fmt(cfg.stair_depth / 2.0)} {fmt(cfg.stair_width_y / 2.0)} {fmt(h / 2.0)}",
             "material": "stair_mat",
         })
 
-    # ====== 2. 平台（紧接台阶左侧） ======
-    stairs_left_x = cfg.stairs_right_x - cfg.stair_layers * cfg.stair_depth
-    plat_right_x = stairs_left_x        # 紧挨台阶
-    plat_left_x = plat_right_x - cfg.platform_length_x
-    plat_cx = (plat_right_x + plat_left_x) / 2.0
+    # ====== 平台1（上行台阶左侧） ======
+    up_stair_left = up_stair_right - cfg.stair_layers * cfg.stair_depth
+    plat1_right = up_stair_left
+    plat1_left = plat1_right - cfg.platform_length_x
+    plat1_cx = (plat1_right + plat1_left) / 2.0
 
-    wb.append(ET.Comment(
-        f" Platform: x=[{fmt(plat_left_x)}, {fmt(plat_right_x)}], top z={fmt(th)}"
-    ))
+    wb.append(ET.Comment(f" Platform 1: x=[{fmt(plat1_left)}, {fmt(plat1_right)}]"))
     ET.SubElement(wb, "geom", {
-        "name": "platform", "group": "2",
-        "pos": f"{fmt(plat_cx)} 0 {fmt(th / 2.0)}",
+        "name": "platform_1", "group": "2",
+        "pos": f"{fmt(plat1_cx)} 0 {fmt(th / 2.0)}",
         "type": "box",
         "size": f"{fmt(cfg.platform_length_x / 2.0)} {fmt(cfg.platform_width_y / 2.0)} {fmt(th / 2.0)}",
         "material": "platform_mat",
     })
 
-    # ====== 3. 梅花桩（紧接平台左侧） ======
-    pile_right_edge = plat_left_x       # 紧挨平台
+    # ====== 梅花桩（紧接平台1左侧） ======
     half_cols = (cfg.pile_cols - 1) / 2.0
-    pile_center_x = pile_right_edge - cfg.pile_size_x / 2.0 - half_cols * cfg.pile_spacing_x
+    half_rows = (cfg.pile_rows - 1) / 2.0
+    pile_edge_right = plat1_left
+    pile_center_x = pile_edge_right - sx - half_cols * cfg.pile_spacing_x
 
     wb.append(ET.Comment(
         f" Plum-blossom piles: {cfg.pile_rows}x{cfg.pile_cols}, "
         f"center_x={fmt(pile_center_x)}, top z={fmt(th)}"
     ))
-    sx = cfg.pile_size_x / 2.0
-    sy = cfg.pile_size_y / 2.0
 
     for row in range(cfg.pile_rows):
         for col in range(cfg.pile_cols):
             x_off = (cfg.pile_spacing_x / 2.0) if (cfg.pile_stagger and row % 2 == 1) else 0.0
             local_x = (col - half_cols) * cfg.pile_spacing_x + x_off
-            local_y = (row - (cfg.pile_rows - 1) / 2.0) * cfg.pile_spacing_y
+            local_y = (row - half_rows) * cfg.pile_spacing_y
 
             px = pile_center_x + local_x
             py = local_y
@@ -141,14 +133,46 @@ def build_scene(output_path: Path, cfg: TerrainCfg | None = None):
                 "material": "pile_mat",
             })
 
+    # ====== 平台2（梅花桩左侧） ======
+    pile_edge_left = pile_center_x - half_cols * cfg.pile_spacing_x - sx
+    plat2_right = pile_edge_left
+    plat2_left = plat2_right - cfg.platform_length_x
+    plat2_cx = (plat2_right + plat2_left) / 2.0
+
+    wb.append(ET.Comment(f" Platform 2: x=[{fmt(plat2_left)}, {fmt(plat2_right)}]"))
+    ET.SubElement(wb, "geom", {
+        "name": "platform_2", "group": "2",
+        "pos": f"{fmt(plat2_cx)} 0 {fmt(th / 2.0)}",
+        "type": "box",
+        "size": f"{fmt(cfg.platform_length_x / 2.0)} {fmt(cfg.platform_width_y / 2.0)} {fmt(th / 2.0)}",
+        "material": "platform_mat",
+    })
+
+    # ====== 下行台阶 ======
+    down_stair_right = plat2_left
+    wb.append(ET.Comment(f" Down stairs: right_edge={fmt(down_stair_right)}"))
+    for i in range(cfg.stair_layers):
+        h = th - step_h * i
+        if h <= 0:
+            break
+        cx = down_stair_right - (i + 0.5) * cfg.stair_depth
+        ET.SubElement(wb, "geom", {
+            "name": f"down_stair_{i}", "group": "2",
+            "pos": f"{fmt(cx)} 0 {fmt(h / 2.0)}",
+            "type": "box",
+            "size": f"{fmt(cfg.stair_depth / 2.0)} {fmt(cfg.stair_width_y / 2.0)} {fmt(h / 2.0)}",
+            "material": "stair_mat",
+        })
+
     ET.indent(root, space="  ")
     ET.ElementTree(root).write(output_path, encoding="utf-8", xml_declaration=False)
     print(f"Generated terrain: {output_path}")
-    print(f"  Layout (x):  piles[{fmt(pile_center_x - half_cols * cfg.pile_spacing_x)}, "
-          f"{fmt(pile_right_edge)}] | platform[{fmt(plat_left_x)}, {fmt(plat_right_x)}] | "
-          f"stairs[{fmt(stairs_left_x)}, {fmt(cfg.stairs_right_x)}]")
-    print(f"  All tops at z={fmt(th)}")
-    print(f"  Robot spawn: ({fmt(cfg.stairs_right_x + 1.5)}, 0, 0.8)")
+    print(f"  Layout (x): stairs↑[{fmt(up_stair_left)}, {fmt(up_stair_right)}] | "
+          f"plat1[{fmt(plat1_left)}, {fmt(plat1_right)}] | "
+          f"piles[{fmt(pile_edge_left)}, {fmt(pile_edge_right)}] | "
+          f"plat2[{fmt(plat2_left)}, {fmt(plat2_right)}] | "
+          f"stairs↓[{fmt(down_stair_right - cfg.stair_layers * cfg.stair_depth)}, {fmt(down_stair_right)}]")
+    print(f"  Robot spawn: ({fmt(up_stair_right + 2.0)}, 0, 0.8)")
 
 
 if __name__ == "__main__":
